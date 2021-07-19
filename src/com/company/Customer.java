@@ -25,6 +25,15 @@ public class Customer {
 		this.address = address;
 
 	}
+	
+	public Customer(int customerid, String email, String fullname, int age, String address) {
+		this.customerid = customerid;
+		this.email = email;
+		this.fullname = fullname;
+		this.age = age;
+		this.address = address;
+
+	}
 
 	public int getCustomerid() {
 		return customerid;
