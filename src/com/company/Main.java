@@ -18,12 +18,16 @@ public class Main {
 
 //step2 create  the connection object
             Connection con= DriverManager.getConnection(
-                    "jdbc:oracle:thin:@localhost:1521/xe","system","chenqq227");
+                    "jdbc:oracle:thin:@localhost:1521/xe","system","admin");
 
 //step3 create the statement object
             Statement stmt=con.createStatement();
             Account ac = new Account(1,"saving", null, null, null, 0);
-            ac.createAccount(stmt);
+            AccountController acc = new AccountController();
+            acc.createAccount(stmt, ac);
+            acc.getAccountByCustomerId(stmt, 1);
+            acc.deleteAccount(stmt, 11);
+            acc.getAccountByCustomerId(stmt, 1);
 
 //step5 close the connection object
             con.close();
