@@ -8,19 +8,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class AccountController {
-    private Account account;
-
-    public AccountController(){};
-
-    public AccountController(Account account) {
-        this.account = account;
-    }
-
-    //only help with create account
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
     //Account creation initiated successfully” Or Relevant error message to be displayed
     public void createAccount(Statement stmt, Account account) throws Exception{
         //set status == active, as we just created the account
