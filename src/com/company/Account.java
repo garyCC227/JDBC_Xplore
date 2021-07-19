@@ -12,25 +12,22 @@ public class Account {
     int customerId;
     String accountType;
     String status;
-    String message;
     String lastUpdated;
     int balance;
 
-    public Account(int customerId, String accountType, String status, String message, String lastUpdated, int balance) {
+    public Account(int customerId, String accountType, String status, String lastUpdated, int balance) {
         this.customerId = customerId;
         this.accountType = accountType;
         this.status = status;
-        this.message = message;
         this.lastUpdated = lastUpdated;
         this.balance = balance;
     }
 
-    public Account(int accountId, int customerId, String accountType, String status, String message, String lastUpdated, int balance) {
+    public Account(int accountId, int customerId, String accountType, String status, String lastUpdated, int balance) {
         this.accountId = accountId;
         this.customerId = customerId;
         this.accountType = accountType;
         this.status = status;
-        this.message = message; // can be null
         this.lastUpdated = lastUpdated;
         this.balance = balance;
     }
@@ -58,7 +55,6 @@ public class Account {
                 ", customerId=" + customerId +
                 ", accountType='" + accountType + '\'' +
                 ", status='" + status + '\'' +
-                ", message='" + message + '\'' +
                 ", lastUpdated='" + lastUpdated + '\'' +
                 ", balance=" + balance +
                 '}';
@@ -94,14 +90,6 @@ public class Account {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getLastUpdated() {

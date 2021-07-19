@@ -22,12 +22,12 @@ public class Main {
 
 //step3 create the statement object
             Statement stmt=con.createStatement();
-            Account ac = new Account(1,"saving", null, null, null, 0);
-            AccountController acc = new AccountController();
-            acc.createAccount(stmt, ac);
-            acc.getAccountByCustomerId(stmt, 1);
-            acc.deleteAccount(stmt, 11);
-            acc.getAccountByCustomerId(stmt, 1);
+//            Account ac = new Account(1,"saving", null, null, 0);
+//            AccountController acc = new AccountController();
+//            acc.createAccount(stmt, ac);
+//            acc.getAccountByCustomerId(stmt, 1);
+//            acc.deleteAccount(stmt, 11);
+//            acc.getAccountByCustomerId(stmt, 1);
 
 //step5 close the connection object
             con.close();
