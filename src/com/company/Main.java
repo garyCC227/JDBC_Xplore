@@ -1,9 +1,13 @@
 package com.company;
 
+import oracle.jdbc.internal.XSCacheOutput;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main {
 
@@ -14,15 +18,12 @@ public class Main {
 
 //step2 create  the connection object
             Connection con= DriverManager.getConnection(
-                    "jdbc:oracle:thin:@localhost:1521/xe","system","admin");
+                    "jdbc:oracle:thin:@localhost:1521/xe","system","chenqq227");
 
 //step3 create the statement object
             Statement stmt=con.createStatement();
-
-//step4 execute query
-            ResultSet rs=stmt.executeQuery("select * from customerstatus");
-            while(rs.next())
-                System.out.println(rs.getInt(1)+"  "+rs.getString(2)+"  "+rs.getString(3));
+            Account ac = new Account(1,"saving", null, null, null, 0);
+            ac.createAccount(stmt);
 
 //step5 close the connection object
             con.close();
@@ -30,4 +31,5 @@ public class Main {
         }catch(Exception e){ System.out.println(e);}
 
     }
+
 }
