@@ -3,18 +3,17 @@ package com.company;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
 public class Account {
-    int accountId;
-    int customerId;
-    String accountType;
-    String status;
-    String message;
-    String lastUpdated;
-    int balance;
+    private int accountId;
+    private int customerId;
+    private String accountType;
+    private String status;
+    private String message;
+    private String lastUpdated;
+    private int balance;
 
     public Account(int customerId, String accountType, String status, String message, String lastUpdated, int balance) {
         this.customerId = customerId;
@@ -35,7 +34,32 @@ public class Account {
         this.balance = balance;
     }
 
-    protected boolean validate(){
+    //Account creation initiated successfully” Or Relevant error message to be displayed
+    public void createAccount(Statement stmt) throws Exception{
+        //set status == active, as we just created the account
+        this.status = "active";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        this.lastUpdated = (sdf.format(new Date())).toString();
+
+        //Validate account data
+        if(!validate()) return;
+
+        //generate new accountID
+        ResultSet rs = stmt.executeQuery("select max(accountid) as max_ from accountstatus");
+        rs.next();
+        this.accountId = rs.getInt("max_") + 1;
+
+        //insert record into db
+        String query = String.format("Insert into accountstatus(accountid, customerid, accounttype, status, message, lastupdated, balance) values (%d, %d, '%s', '%s', '%s', to_date('%s', 'yyyy/mm/dd'), %d)", accountId, customerId, accountType, status, null, lastUpdated, 0);
+        if(stmt.execute(query)){
+            System.out.println("Success");
+        }
+
+        //show success messgae
+        System.out.println("Account creation initiated successfully");
+    }
+
+    private boolean validate(){
         //validate account type
         if(accountType != "saving"  && accountType !="cheque"){
             System.out.println("Error: Account type is neither saving nor cheque");
@@ -51,18 +75,7 @@ public class Account {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "Account{" +
-                "accountId=" + accountId +
-                ", customerId=" + customerId +
-                ", accountType='" + accountType + '\'' +
-                ", status='" + status + '\'' +
-                ", message='" + message + '\'' +
-                ", lastUpdated='" + lastUpdated + '\'' +
-                ", balance=" + balance +
-                '}';
-    }
+
 
     public int getAccountId() {
         return accountId;
