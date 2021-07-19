@@ -17,12 +17,16 @@ public class CustomerController {
 
 			// step2 create the connection object
 			Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/xe", "system", "admin");
-
-			// step3 create the statement object
 			Statement stmt = con.createStatement();
-			Customer c = new Customer(1, 1, "a ", "b ", 5, "c");
+
+			// step3 create the statement object with 5 values (ssnid, email, fullname, age, address), customerid will be generated automatically
+			Customer c = new Customer(1, "a ", "b ", 5, "c");
+
 			CustomerController c1 = new CustomerController();
 			c1.createCustomer(stmt, c);
+
+		 	// c1.deleteCustomer(stmt, 3);
+		        c1.getCustomerByCustomerId(stmt, 1);
 
 			// step5 close the connection object
 			con.close();
@@ -65,39 +69,42 @@ public class CustomerController {
 	}
 	
 
-//delete customer row
-public void deleteCustomer(Statement stmt, int id) throws Exception{
-        String query = String.format("delete from customerstatus where customerid = %d", id);
-        stmt.execute(query);
-        System.out.println("Customer deletion initiated successfully");
-    }
 
-//pulls customer details for customer id
-public ArrayList<Customer> getCustomerByCustomerId(Statement stmt, int id) throws Exception{
-        String query = String.format("select * from customerstatus where customerid = %d order by accountid", id);
-        ResultSet rs = stmt.executeQuery(query);
-        ArrayList<Customer> result = new ArrayList<>();
+	// delete customer row
+	public void deleteCustomer(Statement stmt, int id) throws Exception {
+		String query = String.format("delete from customerstatus where customerid = %d", id);
+		stmt.execute(query);
+		System.out.println("Customer deletion initiated successfully");
+	}
 
-        while(rs.next()){ 
-            int custId = rs.getInt("customerid");
-            String email = rs.getString(2);
-            String fullName = rs.getString(3);
-            int age = rs.getInt("4");
-            String address = rs.getString(5);
+	// pulls customer details for customer id
+	public ArrayList<Customer> getCustomerByCustomerId(Statement stmt, int id) throws Exception {
+		String query = String.format("select * from customerstatus where customerid = %d order by customerid", id);
+		ResultSet rs = stmt.executeQuery(query);
+		ArrayList<Customer> result = new ArrayList<>();
 
-            Customer cust = new Customer(custId, email, fullName, age, address);
-            result.add(cust);
-        }
+		while (rs.next()) {
+			int custId = rs.getInt("customerid");
+			int actId = rs.getInt("ssnid");
+			String email = rs.getString(3);
+			String fullName = rs.getString(4);
+			int age = rs.getInt(5);
+			String address = rs.getString(6);
 
-        String header = "|  Customer ID  | Email | Full Name |  Age |  Address  |";
-        System.out.println("------------------------------------------------------------------------------------");
-        System.out.println(header);
-        System.out.println("------------------------------------------------------------------------------------");
-        for(Customer cust: result){
-            System.out.println("|  " + cust.custId + "  |  " +  cust.email + "  |  "+ cust.fullName+"  |  " + cust.age + "  | " + cust.address + " |");
-        }
+			Customer cust = new Customer(custId, actId, email, fullName, age, address);
+			result.add(cust);
+		}
 
-        return result;
-    }
+		String header = "|  Customer ID  | Email | Full Name |  Age |  Address  |";
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println(header);
+		System.out.println("------------------------------------------------------------------------------------");
+		for (Customer cust : result) {
+			System.out.println("|  " + cust.customerid + "  |  " + cust.email + "  |  " + cust.fullname + "  |  "
+					+ cust.age + "  | " + cust.address + " |");
+		}
+
+		return result;
+	}
 
 }
