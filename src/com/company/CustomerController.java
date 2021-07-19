@@ -40,7 +40,7 @@ public class CustomerController {
 	public void createCustomer(Statement stmt, Customer customer) throws Exception {
 
 		// generate new customerID
-		ResultSet rs = stmt.executeQuery("select max(accountid) as max_ from accountstatus");
+		ResultSet rs = stmt.executeQuery("select max(customerid) as max_ from customerstatus");
 		rs.next();
 		customer.customerid = rs.getInt("max_") + 1;
 
