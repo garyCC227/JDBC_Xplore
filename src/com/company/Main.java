@@ -18,7 +18,7 @@ public class Main {
 
 //step2 create  the connection object
             Connection con= DriverManager.getConnection(
-                    "jdbc:oracle:thin:@localhost:1521/xe","system","chenqq227");
+                    "jdbc:oracle:thin:@localhost:1521/xe","system","admin");
 
 //step3 create the statement object
             Statement stmt=con.createStatement();
