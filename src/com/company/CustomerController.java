@@ -1,3 +1,5 @@
+package po;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -18,7 +20,7 @@ public class CustomerController {
 
 			// step3 create the statement object
 			Statement stmt = con.createStatement();
-			Customer c = new Customer(1, 1, " ", " ", 0, " ");
+			Customer c = new Customer(1, 1, "a ", "b ", 5, "c");
 			CustomerController c1 = new CustomerController();
 			c1.createCustomer(stmt, c);
 
@@ -39,9 +41,10 @@ public class CustomerController {
 		customer.customerid = rs.getInt("max_") + 1;
 
 		// insert record into db
-		String sql = "INSERT INTO customerstatus(customerid, ssnid, email, fullname, age, address ) VALUES ("
-				+ customer.customerid + "," + customer.ssnid + ",'" + customer.email + "'," + customer.fullname + "',"
-				+ customer.age + ",'" + customer.address + "')";
+		
+
+	
+		String sql = "INSERT INTO customerstatus(customerid, ssnid, email, fullname, age, address ) VALUES ("+customer.customerid+",'" +customer.ssnid+ "','"+customer.email+ "','"+customer.fullname+ "', "+ customer.age + ",'" + customer.address + "')";
 		stmt.execute(sql);
 
 		// show success message
