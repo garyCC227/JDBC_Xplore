@@ -1,4 +1,4 @@
-package po;
+package com.company;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -64,8 +64,40 @@ public class CustomerController {
 		System.out.println("Customer update successfully");
 	}
 	
-	 public void deleteCustomer(Statement stmt, int id) throws Exception{
-   
+
+//delete customer row
+public void deleteCustomer(Statement stmt, int id) throws Exception{
+        String query = String.format("delete from customerstatus where customerid = %d", id);
+        stmt.execute(query);
+        System.out.println("Customer deletion initiated successfully");
+    }
+
+//pulls customer details for customer id
+public ArrayList<Customer> getCustomerByCustomerId(Statement stmt, int id) throws Exception{
+        String query = String.format("select * from customerstatus where customerid = %d order by accountid", id);
+        ResultSet rs = stmt.executeQuery(query);
+        ArrayList<Customer> result = new ArrayList<>();
+
+        while(rs.next()){ 
+            int custId = rs.getInt("customerid");
+            String email = rs.getString(2);
+            String fullName = rs.getString(3);
+            int age = rs.getInt("4");
+            String address = rs.getString(5);
+
+            Customer cust = new Customer(custId, email, fullName, age, address);
+            result.add(cust);
+        }
+
+        String header = "|  Customer ID  | Email | Full Name |  Age |  Address  |";
+        System.out.println("------------------------------------------------------------------------------------");
+        System.out.println(header);
+        System.out.println("------------------------------------------------------------------------------------");
+        for(Customer cust: result){
+            System.out.println("|  " + cust.custId + "  |  " +  cust.email + "  |  "+ cust.fullName+"  |  " + cust.age + "  | " + cust.address + " |");
+        }
+
+        return result;
     }
 
 }
