@@ -25,8 +25,10 @@ public class AccountController {
             AccountController acc = new AccountController();
             acc.createAccount(stmt, ac);
             acc.getAccountByCustomerId(stmt, 1);
-            acc.deleteAccount(stmt, 6);
-            acc.getAccountByCustomerId(stmt, 1);
+//            acc.deleteAccount(stmt, 6);
+//            acc.getAccountByCustomerId(stmt, 1);
+//
+            acc.getAccountStatus(stmt);
 
 //step5 close the connection object
             con.close();
@@ -35,7 +37,27 @@ public class AccountController {
 
     }
 
+    public void getAccountStatus(Statement stmt) throws Exception{
+        String query=   "select fullname, accountid, accounttype, accountstatus.status, accountstatus.lastupdated " +
+                "from accountstatus " +
+                "join customerstatus on accountstatus.customerid = customerstatus.customerid " +
+                "order by accountstatus.lastupdated desc ";
 
+        ResultSet rs=stmt.executeQuery(query);
+
+        String header = "|  Customer Name  | Account ID | Account Type | Status |  Last Updated  |";
+        System.out.println("-----------------------------------------------------------------------");
+        System.out.println(header);
+        System.out.println("-----------------------------------------------------------------------");
+        while(rs.next()){
+            String customerName = rs.getString(1);
+            String id = rs.getString(2);
+            String accountType = rs.getString(3);
+            String status = rs.getString(4);
+            String lastUpdated = rs.getString(5);
+            System.out.println("|  " + customerName + "  |  " +  id + "  |  " +  accountType + "  |  " + status + "  | " + lastUpdated + " |");
+        }
+    }
 
     //Account creation initiated successfully” Or Relevant error message to be displayed
     public void createAccount(Statement stmt, Account account) throws Exception{
@@ -62,7 +84,7 @@ public class AccountController {
     }
 
     public ArrayList<Account> getAccountByCustomerId(Statement stmt, int id) throws Exception{
-        String query = String.format("select * from accountstatus where customerid = %d", id);
+        String query = String.format("select * from accountstatus where customerid = %d order by accountid", id);
         ResultSet rs = stmt.executeQuery(query);
         ArrayList<Account> result = new ArrayList<>();
 
@@ -78,9 +100,12 @@ public class AccountController {
             result.add(acc);
         }
 
-        //TODO: can be removed
-        for(Account acc : result){
-            System.out.println(acc.toString());
+        String header = "|  Customer ID  | Account ID | Account Type | Status |  Last Updated  |  Balance  |";
+        System.out.println("------------------------------------------------------------------------------------");
+        System.out.println(header);
+        System.out.println("------------------------------------------------------------------------------------");
+        for(Account acc: result){
+            System.out.println("|  " + acc.customerId + "  |  " +  acc.accountId + "  |  " +  acc.accountType + "  |  "+ acc.status+"  |  " + acc.lastUpdated + "  | " + acc.balance + " |");
         }
 
         return result;
