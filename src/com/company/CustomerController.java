@@ -64,10 +64,8 @@ public class CustomerController {
 		System.out.println("Customer update successfully");
 	}
 	
-	 public void deleteAccount(Statement stmt, int id) throws Exception{
-        String query = String.format("delete from accountstatus where accountid = %d", id);
-        stmt.execute(query);
-        System.out.println("Account deletion initiated successfully");
+	 public void deleteCustomer(Statement stmt, int id) throws Exception{
+   
     }
 
 }
