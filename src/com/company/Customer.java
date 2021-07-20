@@ -16,6 +16,15 @@ public class Customer {
 	String fullname;
 	String address;
 
+	public Customer(int ssnid, String email, String fullname, int age, String address) {
+		this.ssnid = ssnid;
+		this.email = email;
+		this.fullname = fullname;
+		this.age = age;
+		this.address = address;
+
+	}
+
 	public Customer(int customerid, int ssnid, String email, String fullname, int age, String address) {
 		this.customerid = customerid;
 		this.ssnid = ssnid;
