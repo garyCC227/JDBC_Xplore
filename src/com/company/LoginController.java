@@ -1,3 +1,10 @@
+package com.company;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 class LoginController {
     static String url = "jdbc:oracle:thin:@localhost:1521:xe";
     static String user = "default";
