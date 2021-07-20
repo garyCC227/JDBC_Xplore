@@ -1,5 +1,6 @@
 package com.company;
 
+import java.sql.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -515,6 +516,102 @@ public class Main {
 
         }
         return num;
+    }
+
+    public static boolean makeTransfer(Connection conn, String exchangeNum, String sourceID, String targetID) throws SQLException {
+        int amount = Integer.parseInt(exchangeNum);
+        int source_id = Integer.parseInt(sourceID);
+        int target_id = Integer.parseInt(targetID);
+        Date date = new Date(System.currentTimeMillis());
+        int newID = 0;
+        int oldSourceBalance = 0;
+        int oldTargetBalance = 0;
+
+        //Check if transfer possible and get oldBalance of accounts
+        String query2 = "select accountid, balance from accountstatus where accountid=" + source_id + "or accountid=" + target_id;
+        PreparedStatement pst2 = conn.prepareStatement(query2);
+        ResultSet rs2 = pst2.executeQuery();
+
+        while (rs2.next()) {
+            if (rs2.getInt(1) == source_id) {
+                oldSourceBalance = rs2.getInt(2);
+                if (oldSourceBalance < amount) {
+                    //System.out.println("Transfer not allowed, please choose smaller amount");
+                    return false;
+                }
+            } else {
+                oldTargetBalance = rs2.getInt(2);
+            }
+        }
+
+        //Make updates to account balances in db
+        int newSourceBalance = oldSourceBalance - amount;
+        int newTargetBalance = oldTargetBalance + amount;
+
+        String updateQuery = "update accountstatus set balance=" + newSourceBalance + " where accountid=" + source_id;
+        Statement st = conn.createStatement();
+        int cnt = st.executeUpdate(updateQuery);
+
+        String updateQuery2 = "update accountstatus set balance=" + newTargetBalance + " where accountid=" + target_id;
+        Statement st2 = conn.createStatement();
+        int cnt2 = st2.executeUpdate(updateQuery2);
+
+        //Create new transaction in db
+        String query = "select max(transactionID) from transactions";
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            newID = rs.getInt(1) + 1;
+        }
+
+        String insertQuery = "insert into transactions (transactionid, account_from, account_to, transaction_day, amount) values "
+                + "(" + newID + ", " + source_id + ", " + target_id + ", TO_Date('" + date + "', 'YYYY-MM-DD'), " + amount +")";
+        System.out.println(insertQuery);
+        Statement st3 = conn.createStatement();
+        int cnt3 = st3.executeUpdate(insertQuery);
+
+        //System.out.println("Amount transfer completed successfully");
+        System.out.println("Source Acc.: " + source_id + " | Target Acc.: " + target_id + " | Old Source Acc. Balance: " + oldSourceBalance +
+                " | Old Target Acc. Balance:" + oldTargetBalance + " | New Source Acc. Balance: " + newSourceBalance + " | New Target Acc. Balance: " + newTargetBalance);
+
+        return true;
+    }
+
+    public static void returnTransactions(Connection conn, String acc_id, String n) throws SQLException {
+        int id = Integer.parseInt(acc_id);
+        int num = Integer.parseInt(n);
+
+        String query = "select * from transactions where rownum <= " + num + " and (account_to=" + id + " or account_from=" + id + ") order by transaction_day desc";
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            int from = rs.getInt("account_from");
+            int to = rs.getInt("account_to");
+            int amount = rs.getInt("amount");
+            Date transaction_date = rs.getDate("transaction_day");
+            String message;
+            String type;
+
+            if (from == 0) {
+                message = "Deposit";
+                type = "Debit";
+            } else if (to == 0) {
+                message = "Withdrawal";
+                type = "Credit";
+            } else {
+                if (from == id) {
+                    message = "Transfer to Account " + to;
+                    type = "Credit";
+                } else {
+                    message = "Transfer from Account " + from;
+                    type = "Debit";
+                }
+            }
+            System.out.println(transaction_date + " | " + message + " | " + type + " | $" + amount);
+        }
+        return;
     }
 
 }
