@@ -1,39 +1,520 @@
 package com.company;
 
-import oracle.jdbc.internal.XSCacheOutput;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
 
     public static void main(String[] args) {
-        try{
-//step1 load the driver class
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+        String AccType = "";
+        boolean invalid = true;
+        boolean input1;
+        boolean input2;
+        Scanner input = new Scanner(System.in);
+        Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+        Matcher matcher;
+        /*
+         * LOGIN Section
+         * Inputs:
+         * -UserID: alphabetic or alphanumeric, min 8 characters
+         * -Password: alphabetic or alphanumeric, min 10 characters
+         */
 
-//step2 create  the connection object
-            Connection con= DriverManager.getConnection(
-                    "jdbc:oracle:thin:@localhost:1521/xe","system","admin");
+        String userID="";
+        String password="";
+        while(invalid) {
+            //handle any unexpected exceptions
+            try {
+                System.out.println("Enter your userID:");
+                userID = input.nextLine();
+                System.out.println("Enter your Password:");
+                password = input.nextLine();
+                invalid = false;
+            }
+            catch(Exception e) {
+                System.out.println("Invalid UserID or Password");
+            }
+            //check for correct input length
+            if(userID.length()<8 || password.length()<10) {
+                invalid = true;
+                System.out.println("Invalid UserID or Password");
+            }
+            //check for special characters
+            matcher = pattern.matcher(userID);
+            input1 = matcher.find();
+            matcher = pattern.matcher(password);
+            input2 = matcher.find();
+            if(input1 || input2) {
+                invalid = true;
+                System.out.println("Special characters not allowed");
 
-//step3 create the statement object
-            Statement stmt=con.createStatement();
-//            Account ac = new Account(1,"saving", null, null, 0);
-//            AccountController acc = new AccountController();
-//            acc.createAccount(stmt, ac);
-//            acc.getAccountByCustomerId(stmt, 1);
-//            acc.deleteAccount(stmt, 11);
-//            acc.getAccountByCustomerId(stmt, 1);
+            }
+            //Add your log in function here e.g AccType = YourFunction();
+            //if no account found AccType should = ""
+            AccType = "Customer"; // or Cashier
+            //
+            if(AccType=="") {
+                invalid = true;
+                System.out.println("Account not found");
 
-//step5 close the connection object
-            con.close();
+            }
 
-        }catch(Exception e){ System.out.println(e);}
 
+        }
+
+        /*
+         * Main while loop
+         */
+        String STATUS = "OptionPanel1";
+        boolean ACTIVE = true;
+        while(ACTIVE) {
+            if(AccType == "Customer" && STATUS == "OptionPanel1") {
+                showOptions(AccType);
+                int cusOption = inputOption(input,"Please enter the number of one of the above options:",1,4);
+                switch(cusOption) {
+                    case 1:
+                        STATUS = "OptionPanel1Sub1";
+                        break;
+                    case 2:
+                        STATUS = "OptionPanel1Sub2";
+                        break;
+                    case 3:
+                        STATUS = "OptionPanel1Sub3";
+                        break;
+                    case 4:
+                        ACTIVE = false;
+                        break;
+                }
+            }
+            //CREATE UPDATE DELETE
+            if(AccType == "Customer" && STATUS == "OptionPanel1Sub1") {
+                print("1. Create Customer");
+                print("2. Update Customer");
+                print("3. Delete Customer");
+                print("4. Go Back");
+                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,4);
+                switch(cusOption) {
+                    case 1:
+                        STATUS = "CreateCus";
+                        break;
+                    case 2:
+                        STATUS = "UpdateCus";
+                        break;
+                    case 3:
+                        STATUS = "DeleteCus";
+                        break;
+                    case 4:
+                        STATUS = "OptionPanel1";
+                }
+            }
+            //CREATE CUSTOMER
+            if(AccType == "Customer" && STATUS == "CreateCus") {
+                String SSN = digitInput(input,"Enter Customer SSN:",9,9);
+                String Name = inputString(input,"Enter Customer Name:",5,35,false,true);
+                String Age = inputNumber(input,"Enter Customer Age:",14,122);
+                String Address1 = inputString(input, "Enter Customer Address 1:",5,50,true,true);
+                String Address2 = inputString(input, "Enter Customer Address 2:",5,50,true,true);
+                String City = inputString(input, "Enter Customer City:",5,30,false,false);
+                String State = inputString(input, "Enter Customer State:",5,30,false,true);
+                String Result =""; //PUT UR CREATE FUNCTION HERE, HAVE IT RETURN STRING "Failed" or "Success"
+                if(Result == "Failed") {
+                    print("Create Customer "+Name +" has failed!");
+                }else {
+                    print("Create Customer "+Name+ " was successful");
+                }
+                print("");
+                STATUS = "OptionPanel1Sub1";
+            }
+            //UPDATE CUSTOMER
+            if(AccType == "Customer" && STATUS == "UpdateCus") {
+                String SSN = digitInput(input,"Enter Customer SSN:",9,9);
+                boolean found = true;// PUT YOUR FUNCTION TO SEARCH FOR CUSTOMER SSN HERE return true if found
+                if(found) {
+                    String newName = "";
+                    String newAge = "";
+                    String newAddress1 = "";
+                    String newAddress2 = "";
+                    String newCity = "";
+                    String newState = "";
+                    if(yesNoOption(input,"Change Customer Name? [y/n]")) {
+                        newName = inputString(input,"Please enter new Name",5,35,false,true);
+                    }
+                    if(yesNoOption(input,"Change Customer Age? [y/n]")) {
+                        newAge = inputNumber(input,"Please enter new Age",14,122);
+                    }
+                    if(yesNoOption(input,"Change Customer Address 1? [y/n]")) {
+                        newAddress1 = inputString(input,"Please enter new Address 1",5,50,true,true);
+                    }
+                    if(yesNoOption(input,"Change Customer Address 2? [y/n]")) {
+                        newAddress1 = inputString(input,"Please enter new Address 2",5,50,true,true);
+                    }
+                    if(yesNoOption(input,"Change Customer City? [y/n]")) {
+                        newCity = inputString(input,"Please enter new City",5,50,true,true);
+                    }
+                    if(yesNoOption(input,"Change Customer State? [y/n]")) {
+                        newState = inputString(input,"Please enter new State",5,50,true,true);
+                    }
+                    //PUT FUNCTION HERE TO TAKE DETAILS AND UPDATE
+                    print("Customer details Updated!");
+                }else {
+                    print("Customer not found!");
+                }
+                print("");
+                STATUS = "OptionPanel1Sub1";
+            }
+            //DELETE CUSTOMER
+            if(AccType == "Customer" && STATUS == "DeleteCus") {
+                String SSN = digitInput(input,"Enter Customer SSN:",9,9);
+                boolean found = true; //PUT A SEARCH FUNCTION HERE RETURN TRUE AND PRINT VALUES IF RECORD EXISTS
+                if(found) {
+                    if(yesNoOption(input,"Do you want to delete this Customer [y/n]")) {
+                        print("Customer Deleted!");
+                    }
+                }else {
+                    print("Customer not found");
+                }
+                print("");
+                STATUS = "OptionPanel1Sub1";
+            }
+
+            //CREATE AND DELETE ACCOUNT OPTIONS
+            if(AccType == "Customer" && STATUS == "OptionPanel1Sub2") {
+                print("1. Create Account");
+                print("2. Delete Account");
+                print("3. Go Back");
+                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,3);
+                switch(cusOption) {
+                    case 1:
+                        STATUS = "CreateAccount";
+                        break;
+                    case 2:
+                        STATUS = "DeleteAccount";
+                        break;
+                    case 3:
+                        STATUS = "OptionPanel1";
+                        break;
+                }
+            }
+            //CREATE CUSTOMER ACCOUNT
+            if(AccType == "Customer" && STATUS == "CreateAccount") {
+                String customerID = digitInput(input,"Enter Customer ID:",3,3);
+                String accountType = inputNumber(input,"Enter 1 for Savings, Enter 2 for Cheque",1,2);
+                String balance = inputNumber(input,"Please enter balance",1,100000);
+                //Put a function here to take the values
+                print("Account created for Customer: "+customerID);
+                print("");
+                STATUS = "OptionPanel1";
+            }
+            //DELETE CUSTOMER ACCOUNT
+            if(AccType == "Customer" && STATUS == "DeleteAccount") {
+                String CustomerId = digitInput(input,"Enter Customer ID:",3,3);
+                boolean found = true; //PUT FIND FUNCTION HERE SHOULD PRINT ALL ACCOUNTS THE CUSTOMER HAS
+
+
+                if(found) {
+
+                    if(yesNoOption(input,"Do you want to delete this Account [y/n]")) {
+                        print("Account Deleted!");
+                    }
+
+                }else {
+                    print("Customer account not found!");
+                }
+                print("");
+                STATUS = "OptionPanel1";
+            }
+            if(AccType == "Customer" && STATUS == "OptionPanel1Sub3") {
+                print("1. Search for Customer by Cutomer ID");
+                print("2. Search for Customer by SSN");
+                print("3. Go Back");
+                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,3);
+                if(cusOption == 1) {
+                    String customerID = digitInput(input,"Enter Customer ID:",3,3);
+                    boolean found = true; //PUT FUNCTION TO FIND AND PRINT DETAILS OF CUSTOMER RETURN FALSE IF FAILED
+                    if(!found) {
+                        print("Customer not found");
+                    }
+                }
+                if(cusOption == 2) {
+                    String SSN = digitInput(input,"Enter Customer SSN:",9,9);
+                    boolean foundSSN = true;// PUT FIND FUNCTION HERE PRINT OUT RESULTS RETURN FALSE IF NOT FOUND
+                    if(!foundSSN) {
+                        print("Customer not found!");
+                    }
+                }
+                print("");
+                STATUS = "OptionPanel1";
+            }
+
+            /*
+             * CASHIER FLOW CONTROL ----------------------------------------------------------------
+             */
+
+            if(AccType == "Cashier" && STATUS == "OptionPanel1") {
+                showOptions(AccType);
+                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,4);
+                switch(cusOption) {
+                    case 1:
+                        STATUS = "GetAccountInfo";
+                        break;
+                    case 2:
+                        STATUS = "depWitTra"; //deposit withdraw transfer
+                        break;
+                    case 3:
+                        STATUS = "GetAccountTran";
+                        break;
+                    case 4:
+                        ACTIVE = false;
+                        break;
+                }
+            }
+            if(AccType == "Cashier" && STATUS =="GetAccountInfo") {
+                String accountID = digitInput(input,"Enter Account ID:",3,3);
+                boolean found = true; //PUT YOUR SEARCH FUNCTION HERE RETURN FALSE IF NOT FOUND
+                //ALSO PRINT OUT VALUES
+                if(!found) {
+                    print("Account not found");
+                }
+                print("");
+                STATUS = "OptionPanel1";
+            }
+            //DEPOSIT WITHDRAW TRANSFER
+            if(AccType == "Cashier" && STATUS == "depWitTra") {
+                String accountID = digitInput(input,"Enter Account ID:",3,3);
+                boolean found = true; //PUT YOUR SEARCH FUNCTION HERE RETURN FALSE IF NOT FOUND
+                //Put basic customer info balance, type, id e.t.c
+                if(found) {
+                    print("1. Deposit");
+                    print("2. Withdraw");
+                    print("3. Transfer");
+                    print("4. Go Back");
+                    int cusOption = inputOption(input,"Please enter the number of one of the above options",1,4);
+                    if(cusOption == 1) { //deposit
+                        String depAmount = inputNumber(input,"Enter the amount you wish to deposit",1,10000);
+                        print("$"+depAmount+" has been added to account "+accountID);
+                        print("");
+                    }
+                    if(cusOption == 2) { //withdraw
+                        String withAmount = inputNumber(input,"Enter the amount you wish to withdraw",1,10000);
+                        boolean canWithdraw = true; //PUT FUNCTION TO TAKE WITH AMOUNT AND DETERMINE IF TRANSACTION
+                        //CAN BE MADE, IF NOT RETURN FALSE;
+                        if(canWithdraw) {
+                            print("$"+withAmount+" successful withdrawn from account "+accountID );
+                        }else {
+                            print("Withdraw attempt failed, insufficent funds!");
+                        }
+                        print("");
+                    }
+                    if(cusOption == 3) { //transfer
+                        String TargetAccountID = digitInput(input,"Enter Target Account ID:",3,3);
+                        boolean foundTarget = true; //PUT SEARCH FUNCTION RETURN FALSE IF NOT FOUND
+                        if(foundTarget) {
+                            String transAmount = inputNumber(input,"Enter the amount you wish to transfer",1,10000);
+                            boolean canTransfer = true; //PUT FUNCTION TO CHECK IF FUNDS AVAILABLE FOR TRANSFER
+                            //also do transfer and return true or false if succesful
+                            if(canTransfer) {
+                                print("$"+transAmount+" transfered from account "+accountID+" to account "+TargetAccountID);;
+                            }else {
+                                print("Transfer failed, insuficcent funds!");
+                            }
+                        }else {
+                            print("Target Account not found");
+                        }
+                        print("");
+                    }
+                    STATUS = "OptionPanel1";
+
+
+
+                }else {
+                    print("Account not found");
+                }
+                STATUS = "OptionPanel1";
+
+            }
+            if(AccType == "Cashier" && STATUS == "GetAccountTran") {
+                String accountID = digitInput(input,"Enter Account ID:",3,3);
+                boolean found = true;//PUT SEARCH FUNCTION HERE RETURN TRUE IF ACCOUNT EXISTS OR FALSE
+                if(found) {
+                    String nTrans = inputNumber(input,"Enter number of previous transactions to show:",1,10);
+                    //PUT FUNCTION HERE THAT TAKES ID AND NTRANS AND PRINTS ALL PREVIOUS TRANSACTIONS UPTO NTRANS
+                }else {
+                    print("Acount not found");
+                }
+                STATUS = "OptionPanel1";
+            }
+
+
+        }
+
+
+    }
+    public static boolean yesNoOption(Scanner in, String msg) {
+        boolean invalid = true;
+        String val = "";
+        while(invalid) {
+            try {
+                System.out.println(msg);
+                val = in.next();
+                invalid = false;
+            }catch(Exception e) {
+                System.out.println("Invalid input");
+            }
+            in.nextLine();
+            if(val.equals("y")) { //we use equals to compare strings in functions
+                return true;
+            }
+            if(val.equals("n")) {
+                return false;
+            }
+            print("Invalid input");
+            invalid = false;
+
+        }
+
+        return false;
+    }
+    public static String inputNumber(Scanner in, String msg,int min,int max) {
+        //in.hasNextLine();
+        boolean invalid = true;
+        int num = 0;
+        while(invalid) {
+            try {
+                System.out.println(msg);
+                num = in.nextInt();
+                invalid = false;
+            }catch(Exception e) {
+                System.out.println("Invalid input");
+                invalid = true;
+            }
+
+            if(num<min || num>max) {
+                invalid = true;
+                System.out.println("Invalid input");
+            }
+
+        }
+        in.nextLine();
+        return Integer.toString(num);
+    }
+    //classifies spaces as special characters
+    public static String inputString(Scanner in, String msg,int min,int max, boolean alphanum,boolean specialchar) {
+
+        String val = "";
+        boolean invalid = true;
+        while(invalid) {
+            try {
+
+                System.out.println(msg);
+                val = in.nextLine();
+
+                invalid = false;
+            }catch(Exception e) {
+
+                System.out.println("Invalid input");
+                invalid = true;
+            }
+            if(alphanum==false && containsNum(val)) {
+                invalid = true;
+                System.out.println("Invalid input");
+            }
+
+
+            if(specialchar==false && containsSpec(val)) {
+                invalid = true;
+                System.out.println("Invalid input");
+            }
+
+            if(val.length()>max || val.length()<min) {
+                invalid = true;
+                System.out.println("Invalid input");
+            }
+        }
+
+        return val;
+    }
+    public static boolean containsNum(String val) {
+        char[] chars = val.toCharArray();
+        for(char c : chars){
+            if(Character.isDigit(c)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static int inputOption(Scanner in, String msg,int min, int max) {
+        int test = 0;
+        boolean invalid = true;
+        while(invalid) {
+            try {
+                System.out.println(msg);
+                test = in.nextInt();
+                invalid = false;
+            }catch(Exception e) {
+                System.out.println("Invalid input");
+            }
+            if(test>max || test<min) {
+                System.out.println("Invalid input");
+                invalid = true;
+            }
+
+        }
+        in.nextLine();
+        return test;
+
+    }
+
+    public static void showOptions(String user) {
+        if(user == "Customer") {
+            System.out.println("1. Create, Update, Delete Customer");
+            System.out.println("2. Create and Delete Account");
+            System.out.println("3. View Customer and Account Status");
+            print("4. Sign Out");
+        }
+        if(user == "Cashier") {
+            System.out.println("1. Get Customer and Account details");
+            System.out.println("2. Manage deposit, Withdraw and Transfer");
+            System.out.println("3. Get Customer-Account Transactions/Get Statement");
+            print("4. Sign Out");
+        }
+
+    }
+    public static void print(String msg) {
+        System.out.println(msg);
+    }
+    public static boolean containsSpec(String val) {
+        Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+        Matcher matcher = pattern.matcher(val);
+        return matcher.find();
+    }
+    public static String digitInput(Scanner in,String msg,int min,int max) {
+        boolean invalid = true;
+        String num = "";
+
+        while(invalid) {
+            print(msg);
+            num = in.nextLine();
+            invalid = false;
+            if(num.length()>max || num.length()<min) {
+                invalid = true;
+                print("Invalid input length");
+
+            }
+            String test = num.toString();
+            if (!test.matches("[0-9]+")) {
+                invalid = true;
+                print("Invalid input");
+            }
+            if(containsSpec(num)) {
+
+                invalid = true;
+                print("Invalid input special characters detected");
+            }
+
+
+        }
+        return num;
     }
 
 }
