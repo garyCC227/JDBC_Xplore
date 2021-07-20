@@ -74,6 +74,36 @@ public class CustomerController {
 		stmt.execute(query);
 		System.out.println("Customer deletion initiated successfully");
 	}
+	
+	public ArrayList<Customer> getCustomer(Statement stmt) throws Exception {
+		String query = String.format("select * from customerstatus");
+		ResultSet rs = stmt.executeQuery(query);
+		ArrayList<Customer> result = new ArrayList<>();
+
+		while (rs.next()) {
+			int custId = rs.getInt("customerid");
+			int ssnId = rs.getInt("ssnid");
+			String email = rs.getString(3);
+			String fullName = rs.getString(4);
+			int age = rs.getInt(5);
+			String address = rs.getString(6);
+
+			Customer cust = new Customer(custId, ssnId, email, fullName, age, address);
+			result.add(cust);
+		}
+
+		String header = "|  Customer ID | SSN ID  |  Email | Full Name |  Age |  Address  |";
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println(header);
+		System.out.println("------------------------------------------------------------------------------------");
+		for (Customer cust : result) {
+			System.out.println("|  " + cust.customerid + "  |   " + cust.ssnid + "  |  " + cust.email + "  |  " + cust.fullname + "  |  "
+					+ cust.age + "  | " + cust.address + " |");
+		}
+
+		return result;
+	}
+	
 
 	// pulls customer details for customer id
 	public ArrayList<Customer> getCustomerByCustomerId(Statement stmt, int id) throws Exception {
