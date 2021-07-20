@@ -116,57 +116,75 @@ public class Main {
                 }
             }
             //CREATE CUSTOMER
-            if(AccType == "Customer" && STATUS == "CreateCus") {
+              if(AccType == "Customer" && STATUS == "CreateCus") {
                 String SSN = digitInput(input,"Enter Customer SSN:",9,9);
+                String email = inputString(input,"Enter Email:",5,35,false,true);
                 String Name = inputString(input,"Enter Customer Name:",5,35,false,true);
                 String Age = inputNumber(input,"Enter Customer Age:",14,122);
-                String Address1 = inputString(input, "Enter Customer Address 1:",5,50,true,true);
-                String Address2 = inputString(input, "Enter Customer Address 2:",5,50,true,true);
-                String City = inputString(input, "Enter Customer City:",5,30,false,false);
-                String State = inputString(input, "Enter Customer State:",5,30,false,true);
-                String Result =""; //PUT UR CREATE FUNCTION HERE, HAVE IT RETURN STRING "Failed" or "Success"
-                if(Result == "Failed") {
-                    print("Create Customer "+Name +" has failed!");
-                }else {
-                    print("Create Customer "+Name+ " was successful");
-                }
+                String address = inputString(input, "Enter Customer Address:",5,50,true,true);
+              
+                Customer c = new Customer(Integer.parseInt(SSN), email, Name, Integer.parseInt(Age), address);
+            	CustomerController c1 = new CustomerController();
+                Statement stmt=conn.createStatement();
+                c1.createCustomer(stmt, c);
                 print("");
                 STATUS = "OptionPanel1Sub1";
             }
             //UPDATE CUSTOMER
             if(AccType == "Customer" && STATUS == "UpdateCus") {
-                String SSN = digitInput(input,"Enter Customer SSN:",9,9);
-                boolean found = true;// PUT YOUR FUNCTION TO SEARCH FOR CUSTOMER SSN HERE return true if found
-                if(found) {
-                    String newName = "";
-                    String newAge = "";
-                    String newAddress1 = "";
-                    String newAddress2 = "";
-                    String newCity = "";
-                    String newState = "";
+                String cid = digitInput(input,"Enter Customer ID:",3,3);
+            	Statement stmt=conn.createStatement();
+         		String query = String.format("select * from customerstatus where customerid = %d", Integer.parseInt(cid));
+        		ResultSet rs = stmt.executeQuery(query);
+        		String newName =  "";
+                int newAge= 0;
+                String age = "";
+                String newAddress = "";
+              	String newEmail = "";
+              	boolean check=false;
+
+         		while (rs.next()) {
+         	           newName =  rs.getString("fullname");
+                       newAge= rs.getInt("customerid");
+                       age = "";
+                       newAddress = rs.getString("address");
+                       newEmail = rs.getString("email");
+                    
+                       if( rs.getString("fullname")!= "")
+                    	   check=true;
+                       		}
+
+            	if(check==true) {
+                    
+                    if(yesNoOption(input,"Change Customer Email ? [y/n]")) {
+                        newEmail = inputString(input,"Please enter new Email",5,50,true,true);
+                    }
+
                     if(yesNoOption(input,"Change Customer Name? [y/n]")) {
                         newName = inputString(input,"Please enter new Name",5,35,false,true);
                     }
+                    
                     if(yesNoOption(input,"Change Customer Age? [y/n]")) {
-                        newAge = inputNumber(input,"Please enter new Age",14,122);
+                        age = inputNumber(input,"Please enter new Age",14,122);
                     }
-                    if(yesNoOption(input,"Change Customer Address 1? [y/n]")) {
-                        newAddress1 = inputString(input,"Please enter new Address 1",5,50,true,true);
+                    if(yesNoOption(input,"Change Customer Address ? [y/n]")) {
+                        newAddress = inputString(input,"Please enter new Address 1",5,50,true,true);
                     }
-                    if(yesNoOption(input,"Change Customer Address 2? [y/n]")) {
-                        newAddress1 = inputString(input,"Please enter new Address 2",5,50,true,true);
+               
+                    if( age != "") {
+                    	newAge= Integer.parseInt(age);
                     }
-                    if(yesNoOption(input,"Change Customer City? [y/n]")) {
-                        newCity = inputString(input,"Please enter new City",5,50,true,true);
-                    }
-                    if(yesNoOption(input,"Change Customer State? [y/n]")) {
-                        newState = inputString(input,"Please enter new State",5,50,true,true);
-                    }
-                    //PUT FUNCTION HERE TO TAKE DETAILS AND UPDATE
+                   
+                    
+                 	CustomerController c1 = new CustomerController();
+                    stmt=conn.createStatement();
+                 	c1.updateCustomer(stmt, Integer.parseInt(cid),newEmail, newName, newAge, newAddress);
+                    
                     print("Customer details Updated!");
                 }else {
                     print("Customer not found!");
                 }
+                
                 print("");
                 STATUS = "OptionPanel1Sub1";
             }
