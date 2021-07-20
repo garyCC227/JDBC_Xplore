@@ -60,9 +60,7 @@ public class CustomerController {
 
 		// update record into db
 
-		String sql = "UPDATE customerstatus SET email =" + email + ",fullname='" + fullname + "', age=" + age
-				+ ", address='" + address + "'  WHERE customerid =" + customerid + ")";
-		stmt.execute(sql);
+		String sql = "UPDATE customerstatus SET email ='" + email + "', fullname='" + fullname	+ "', age=" + age + ",address ='" + address + "'  WHERE customerid =" + customerid + "";stmt.execute(sql);
 
 		// show success message
 		System.out.println("Customer update successfully");
