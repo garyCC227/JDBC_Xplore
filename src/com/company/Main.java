@@ -238,8 +238,10 @@ public class Main {
             if(AccType == "Customer" && STATUS == "OptionPanel1Sub3") {
                 print("1. Search for Customer by Cutomer ID");
                 print("2. Search for Customer by SSN");
-                print("3. Go Back");
-                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,3);
+                print("3. View All Customer Status");
+                print("4. View All Account Status");
+                print("5. Go Back");
+                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,5);
                 if(cusOption == 1) {
                     String customerID = digitInput(input,"Enter Customer ID:",3,3);
                     boolean found = true; //PUT FUNCTION TO FIND AND PRINT DETAILS OF CUSTOMER RETURN FALSE IF FAILED
@@ -254,9 +256,20 @@ public class Main {
                         print("Customer not found!");
                     }
                 }
+
+                if(cusOption == 3) {
+                   //TODO: Show customer status
+                }
+
+                if(cusOption == 4) {
+                    //TODO: Show Account status
+                }
+
                 print("");
                 STATUS = "OptionPanel1";
             }
+
+
 
 
              //* CASHIER FLOW CONTROL ----------------------------------------------------------------
@@ -322,7 +335,7 @@ public class Main {
                         boolean foundTarget = true; //PUT SEARCH FUNCTION RETURN FALSE IF NOT FOUND
                         if(foundTarget) {
                             String transAmount = inputNumber(input,"Enter the amount you wish to transfer",1,10000);
-                            boolean canTransfer = true; //PUT FUNCTION TO CHECK IF FUNDS AVAILABLE FOR TRANSFER
+                            boolean canTransfer = makeTransfer(conn,transAmount,accountID,TargetAccountID);
                             //also do transfer and return true or false if succesful
                             if(canTransfer) {
                                 print("$"+transAmount+" transfered from account "+accountID+" to account "+TargetAccountID);;
@@ -349,8 +362,8 @@ public class Main {
                 boolean found = true;//PUT SEARCH FUNCTION HERE RETURN TRUE IF ACCOUNT EXISTS OR FALSE
                 if(found) {
                     String nTrans = inputNumber(input,"Enter number of previous transactions to show:",1,10);
-                    //PUT FUNCTION HERE THAT TAKES ID AND NTRANS AND PRINTS ALL PREVIOUS TRANSACTIONS UPTO NTRANS
-                }else {
+                    returnTransactions(conn,accountID,nTrans);
+                } else {
                     print("Acount not found");
                 }
                 STATUS = "OptionPanel1";
