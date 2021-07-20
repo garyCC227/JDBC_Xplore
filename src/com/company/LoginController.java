@@ -7,17 +7,17 @@ import java.sql.ResultSet;
 
 class LoginController {
     static String url = "jdbc:oracle:thin:@localhost:1521:xe";
-    static String user = "default";
-    static String password = "password";
+    static String user = "system";
+    static String password = "chenqq227";
 
     static Connection createConnection() {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             Connection conn = DriverManager.getConnection(url, user, password);
-            System.out.println(conn);
             return conn;
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            //System.out.println(e.getStackTrace());
+            System.out.println(e.getMessage());
         }
         return null;
 
@@ -41,7 +41,7 @@ class LoginController {
                 System.out.println("Login time updated: " + timeChanged);
 
                 switch(temp) {
-                    case "Exective":
+                    case "Executive":
                         result = "Customer";
                         break;
                     case "Cashier":
@@ -58,7 +58,7 @@ class LoginController {
                 return result;
             }
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            //System.out.println(e.getStackTrace());
             System.out.println(e.getMessage());
         }
         return "";
@@ -96,7 +96,7 @@ class LoginController {
             }
              */
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            //System.out.println(e.getStackTrace());
             System.out.println(e.getMessage());
         }
         return false;

@@ -21,7 +21,7 @@ public class AccountController {
 
 //step3 create the statement object
             Statement stmt=con.createStatement();
-            Account ac = new Account(1,"saving", null, null, 0);
+            Account ac = new Account(10,"saving", null, null, 0);
             AccountController acc = new AccountController();
             acc.createAccount(stmt, ac);
             acc.getAccountByCustomerId(stmt, 1);

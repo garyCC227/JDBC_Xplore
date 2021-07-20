@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         String AccType = "";
         boolean invalid = true;
         boolean input1;
@@ -15,6 +15,8 @@ public class Main {
         Scanner input = new Scanner(System.in);
         Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
         Matcher matcher;
+        Connection conn = LoginController.createConnection();
+
         /*
          * LOGIN Section
          * Inputs:
@@ -39,7 +41,8 @@ public class Main {
             //check for correct input length
             if(userID.length()<8 || password.length()<10) {
                 invalid = true;
-                System.out.println("Invalid UserID or Password");
+                System.out.println("Error: UserID must has at least 8 characters | Password must has at least 10 characters");
+                continue;
             }
             //check for special characters
             matcher = pattern.matcher(userID);
@@ -48,21 +51,24 @@ public class Main {
             input2 = matcher.find();
             if(input1 || input2) {
                 invalid = true;
-                System.out.println("Special characters not allowed");
+                System.out.println("Error: Special characters not allowed");
+                continue;
 
             }
             //Add your log in function here e.g AccType = YourFunction();
             //if no account found AccType should = ""
-            AccType = "Customer"; // or Cashier
+            AccType = LoginController.checkLogin(conn, userID, password);
             //
             if(AccType=="") {
                 invalid = true;
-                System.out.println("Account not found");
+                System.out.println("Error: Username and password are incorrect");
+                continue;
 
             }
 
 
         }
+
 
         /*
          * Main while loop
@@ -202,7 +208,11 @@ public class Main {
                 String customerID = digitInput(input,"Enter Customer ID:",3,3);
                 String accountType = inputNumber(input,"Enter 1 for Savings, Enter 2 for Cheque",1,2);
                 String balance = inputNumber(input,"Please enter balance",1,100000);
-                //Put a function here to take the values
+                //Put a function here to take the values\
+                AccountController accController = new AccountController();
+                Statement stmt=conn.createStatement();
+                Account newAcc = new Account(Integer.parseInt(customerID), accountType, null, null, Integer.parseInt(balance));
+                accController.createAccount(stmt, newAcc);
                 print("Account created for Customer: "+customerID);
                 print("");
                 STATUS = "OptionPanel1";
@@ -248,9 +258,9 @@ public class Main {
                 STATUS = "OptionPanel1";
             }
 
-            /*
-             * CASHIER FLOW CONTROL ----------------------------------------------------------------
-             */
+
+             //* CASHIER FLOW CONTROL ----------------------------------------------------------------
+
 
             if(AccType == "Cashier" && STATUS == "OptionPanel1") {
                 showOptions(AccType);
