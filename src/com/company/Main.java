@@ -168,7 +168,7 @@ public class Main {
                         age = inputNumber(input,"Please enter new Age",14,122);
                     }
                     if(yesNoOption(input,"Change Customer Address ? [y/n]")) {
-                        newAddress = inputString(input,"Please enter new Address 1",5,50,true,true);
+                        newAddress = inputString(input,"Please enter new Address",5,50,true,true);
                     }
                
                     if( age != "") {
