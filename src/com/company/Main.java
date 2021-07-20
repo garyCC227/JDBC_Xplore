@@ -276,7 +276,9 @@ public class Main {
                 }
 
                 if(cusOption == 3) {
-                   //TODO: Show customer status
+                    Statement stmt=conn.createStatement();
+                	CustomerController c1 = new CustomerController();
+                	c1.getCustomer(stmt);
                 }
 
                 if(cusOption == 4) {
