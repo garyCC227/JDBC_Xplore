@@ -284,14 +284,14 @@ public class Main {
                 int cusOption = inputOption(input,"Please enter the number of one of the above options",1,5);
                 if(cusOption == 1) {
                     String customerID = digitInput(input,"Enter Customer ID:",3,3);
-                    boolean found = true; //PUT FUNCTION TO FIND AND PRINT DETAILS OF CUSTOMER RETURN FALSE IF FAILED
+                    boolean found = searchCustomer(conn, customerID, "customer");
                     if(!found) {
                         print("Customer not found");
                     }
                 }
                 if(cusOption == 2) {
                     String SSN = digitInput(input,"Enter Customer SSN:",9,9);
-                    boolean foundSSN = true;// PUT FIND FUNCTION HERE PRINT OUT RESULTS RETURN FALSE IF NOT FOUND
+                    boolean foundSSN = searchCustomer(conn, SSN, "ssn");
                     if(!foundSSN) {
                         print("Customer not found!");
                     }
@@ -688,4 +688,38 @@ public class Main {
         return;
     }
 
+    public static boolean searchCustomer(Connection conn, String inputID, String type) throws SQLException {
+        boolean found = false;
+
+        String query = "";
+        int id = Integer.parseInt(inputID);
+        if (type.equals("ssn")) {
+            query = "select ssnid, customerid, fullname, address, age " +
+                    "from customerstatus " +
+                    "where ssnid = " + id;
+        } else if (type.equals("customer")) {
+            query = "select ssnid, customerid, fullname, address, age " +
+                    "from customerstatus " +
+                    "where customerid = " + id;
+        }
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        String header = " |  SSN ID  | Customer ID | Customer Name | Address | Age |";
+        System.out.println("------------------------------------------------------------------------------------");
+        System.out.println(header);
+        System.out.println("------------------------------------------------------------------------------------");
+        while (rs.next()) {
+            found = true;
+            System.out.print(" | " + rs.getInt("ssnID"));
+            System.out.print(" | " + rs.getInt("customerID"));
+            System.out.print(" | " + rs.getString("fullname"));
+            System.out.print(" | " + rs.getString("address"));
+            System.out.print(" | " + rs.getString("age"));
+            System.out.println(" | ");
+            System.out.println();
+        }
+
+        return found;
+    }
 }
