@@ -392,13 +392,19 @@ public class Main {
                         int cusOption = inputOption(input, "Please enter the number of one of the above options", 1, 4);
                         if (cusOption == 1) { //deposit
                             String depAmount = inputNumber(input, "Enter the amount you wish to deposit", 1, 10000);
+                            makeDeposit(conn, depAmount , accountID);
+
                             print("$" + depAmount + " has been added to account " + accountID);
                             print("");
                         }
+
+
+
+
                         if (cusOption == 2) { //withdraw
                             String withAmount = inputNumber(input, "Enter the amount you wish to withdraw", 1, 10000);
-                            boolean canWithdraw = true; //PUT FUNCTION TO TAKE WITH AMOUNT AND DETERMINE IF TRANSACTION TODO:
-                            //CAN BE MADE, IF NOT RETURN FALSE;
+                            boolean canWithdraw = makeWithdrawal(conn, withAmount , accountID);
+
                             if (canWithdraw) {
                                 print("$" + withAmount + " successful withdrawn from account " + accountID);
                             } else {
@@ -406,6 +412,7 @@ public class Main {
                             }
                             print("");
                         }
+
                         if (cusOption == 3) { //transfer
                             String TargetAccountID = digitInput(input, "Enter Target Account ID:", 3, 3);
                             boolean foundTarget = searchAccount(conn, TargetAccountID, "account");
@@ -444,7 +451,7 @@ public class Main {
                         String nTrans = inputNumber(input, "Enter number of previous transactions to show:", 1, 10);
                         returnTransactions(conn, accountID, nTrans);
                     } else {
-                        print("Acount not found");
+                        print("Account not found");
                     }
                     STATUS = "OptionPanel1";
                     continue;
@@ -800,5 +807,108 @@ public class Main {
         }
 
         return found;
+    }
+
+    public static boolean makeWithdrawal(Connection conn, String exchangeNum, String sourceID) throws SQLException {
+        int amount = Integer.parseInt(exchangeNum);
+        int source_id = Integer.parseInt(sourceID);
+
+
+        Date date = new Date(System.currentTimeMillis());
+        int newID = 0;
+        int oldSourceBalance = 0;
+
+
+        //Check if withdrawal is possible and get oldBalance of accounts
+        String query2 = "select accountid, balance from accountstatus where accountid=" + source_id;
+        PreparedStatement pst2 = conn.prepareStatement(query2);
+        ResultSet rs2 = pst2.executeQuery();
+
+        while (rs2.next()) {
+            if (rs2.getInt(1) == source_id) {
+                oldSourceBalance = rs2.getInt(2);
+                if (oldSourceBalance < amount) {
+                    System.out.println("Withdrawal not allowed, please choose smaller amount");
+                    return false;
+                }
+            }
+        }
+
+        //Make updates to account balances in db
+        int newSourceBalance = oldSourceBalance - amount;
+
+
+        String updateQuery = "update accountstatus set balance=" + newSourceBalance + " where accountid=" + source_id;
+        Statement st = conn.createStatement();
+        int cnt = st.executeUpdate(updateQuery);
+
+
+        //Create new transaction in db
+        String query = "select max(transactionID) from transactions";
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            newID = rs.getInt(1) + 1;
+        }
+
+        String insertQuery = "insert into transactions (transactionid, account_from, account_to, transaction_day, amount) values "
+                + "(" + newID + ", " + source_id + ","  + null + "," + "TO_Date('"+ date + "', 'YYYY-MM-DD'), " + amount +")";
+        //System.out.println(insertQuery);
+        Statement st3 = conn.createStatement();
+        int cnt3 = st3.executeUpdate(insertQuery);
+
+        System.out.println("");
+        System.out.println("| Source Acc.: " + source_id + " | \n| Old Acc. Balance: " + oldSourceBalance + "| \n| New  Acc. Balance: " + newSourceBalance);
+
+        return true;
+    }
+
+
+
+    public static boolean makeDeposit(Connection conn, String exchangeNum, String sourceID) throws SQLException {
+        int amount = Integer.parseInt(exchangeNum);
+        int source_id = Integer.parseInt(sourceID);
+        Statement st = conn.createStatement();
+
+        Date date = new Date(System.currentTimeMillis());
+        int newID = 0;
+
+        int oldSourceBalance = 0;
+
+        ResultSet check = st.executeQuery("select balance from accountstatus where accountid=" + source_id);
+        if(check.next()){
+            oldSourceBalance = check.getInt(1);
+        }
+
+
+
+        //Make updates to account balances in db
+        int newSourceBalance = oldSourceBalance + amount;
+
+
+        String updateQuery = "update accountstatus set balance=" + newSourceBalance + " where accountid=" + source_id;
+        int cnt = st.executeUpdate(updateQuery);
+
+
+        //Create new transaction in db
+        String query = "select max(transactionID) from transactions";
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            newID = rs.getInt(1) + 1;
+        }
+
+        String insertQuery = "insert into transactions (transactionid, account_from, account_to, transaction_day, amount) values "
+                + "(" + newID + "," + null + ", " + source_id + " , " + "TO_Date('" + date + "', 'YYYY-MM-DD'), " + amount +")";
+        //System.out.println(insertQuery);
+        Statement st3 = conn.createStatement();
+        int cnt3 = st3.executeUpdate(insertQuery);
+
+        System.out.println("");
+        System.out.println("| Source Acc.: " + source_id +" | \n| Old Acc. Balance: " + oldSourceBalance + "| \n| New  Acc. Balance: " + newSourceBalance);
+
+        return true;
     }
 }
