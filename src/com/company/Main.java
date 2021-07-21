@@ -1,6 +1,7 @@
 package com.company;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,9 +133,13 @@ public class Main {
             }
             //UPDATE CUSTOMER
             if(AccType == "Customer" && STATUS == "UpdateCus") {
+                Statement stmt=conn.createStatement();
+                CustomerController c1 = new CustomerController();
+
                 String cid = digitInput(input,"Enter Customer ID:",3,3);
-            	Statement stmt=conn.createStatement();
-         		String query = String.format("select * from customerstatus where customerid = %d", Integer.parseInt(cid));
+         		c1.getCustomerByCustomerId(stmt, Integer.parseInt(cid));
+
+                String query = String.format("select * from customerstatus where customerid = %d", Integer.parseInt(cid));
         		ResultSet rs = stmt.executeQuery(query);
         		String newName =  "";
                 int newAge= 0;
@@ -152,7 +157,7 @@ public class Main {
                     
                        if( rs.getString("fullname")!= "")
                     	   check=true;
-                       		}
+         		}
 
             	if(check==true) {
                     
@@ -174,9 +179,8 @@ public class Main {
                     if( age != "") {
                     	newAge= Integer.parseInt(age);
                     }
-                   
-                    
-                 	CustomerController c1 = new CustomerController();
+
+
                     stmt=conn.createStatement();
                  	c1.updateCustomer(stmt, Integer.parseInt(cid),newEmail, newName, newAge, newAddress);
                     
@@ -190,14 +194,14 @@ public class Main {
             }
             //DELETE CUSTOMER
             if(AccType == "Customer" && STATUS == "DeleteCus") {
-                String SSN = digitInput(input,"Enter Customer SSN:",9,9);
-                boolean found = true; //PUT A SEARCH FUNCTION HERE RETURN TRUE AND PRINT VALUES IF RECORD EXISTS
-                if(found) {
-                    if(yesNoOption(input,"Do you want to delete this Customer [y/n]")) {
-                        print("Customer Deleted!");
-                    }
-                }else {
-                    print("Customer not found");
+                CustomerController cusController = new CustomerController();
+                Statement stmt=conn.createStatement();
+                cusController.getCustomer(stmt);
+
+                print("");
+                String customerID = digitInput(input,"Enter Customer ID:",3,3);
+                if(yesNoOption(input,"Do you want to delete this Customer [y/n]")) {
+                    cusController.deleteCustomer(stmt, Integer.parseInt(customerID));
                 }
                 print("");
                 STATUS = "OptionPanel1Sub1";
@@ -223,33 +227,51 @@ public class Main {
             }
             //CREATE CUSTOMER ACCOUNT
             if(AccType == "Customer" && STATUS == "CreateAccount") {
-                String customerID = digitInput(input,"Enter Customer ID:",3,3);
-                String accountType = inputNumber(input,"Enter 1 for Savings, Enter 2 for Cheque",1,2);
-                String balance = inputNumber(input,"Please enter balance",1,100000);
-                //Put a function here to take the values\
+                boolean valid = true;
                 AccountController accController = new AccountController();
                 Statement stmt=conn.createStatement();
+
+                String customerID = "";
+                String accountType = "";
+                String balance = "";
+
+                while(valid) {
+                    customerID = digitInput(input, "Enter Customer ID:", 3, 3);
+                    accountType = inputNumber(input, "Enter 1 for Savings, Enter 2 for Cheque", 1, 2);
+                    balance = inputNumber(input, "Please enter balance", 1, 100000);
+                    if(accController.checkCustomerID(stmt, Integer.parseInt(customerID))){
+                        valid = false;
+                        continue;
+                    }
+                }
+
+                //Put a function here to take the values
+                accountType = (accountType.equals("1"))?  "savings" : "cheque";
                 Account newAcc = new Account(Integer.parseInt(customerID), accountType, null, null, Integer.parseInt(balance));
                 accController.createAccount(stmt, newAcc);
-                print("Account created for Customer: "+customerID);
                 print("");
                 STATUS = "OptionPanel1";
             }
             //DELETE CUSTOMER ACCOUNT
             if(AccType == "Customer" && STATUS == "DeleteAccount") {
-                String CustomerId = digitInput(input,"Enter Customer ID:",3,3);
-                boolean found = true; //PUT FIND FUNCTION HERE SHOULD PRINT ALL ACCOUNTS THE CUSTOMER HAS
-
-
-                if(found) {
-
-                    if(yesNoOption(input,"Do you want to delete this Account [y/n]")) {
-                        print("Account Deleted!");
+                AccountController accountController = new AccountController();
+                Statement stmt = conn.createStatement();
+                String CustomerId = null;
+                while(true){
+                    CustomerId = digitInput(input,"Enter Customer ID:",3,3);
+                    if(accountController.checkCustomerID(stmt, Integer.parseInt(CustomerId) )){
+                        break;
                     }
-
-                }else {
-                    print("Customer account not found!");
                 }
+
+                //show account for customer
+                accountController.getAccountByCustomerId(stmt, Integer.parseInt(CustomerId));
+                print("");
+                String accountId = digitInput(input,"Enter Wanted delete Account ID:",3,3);
+                if(yesNoOption(input,"Do you want to delete this Account [y/n]")) {
+                    accountController.deleteAccount(stmt,  Integer.parseInt(accountId));
+                }
+
                 print("");
                 STATUS = "OptionPanel1";
             }
@@ -282,7 +304,8 @@ public class Main {
                 }
 
                 if(cusOption == 4) {
-                    //TODO: Show Account status
+                    Statement stmt=conn.createStatement();
+                    AccountController.getAccountStatus(stmt);
                 }
 
                 print("");
@@ -610,13 +633,13 @@ public class Main {
 
         String insertQuery = "insert into transactions (transactionid, account_from, account_to, transaction_day, amount) values "
                 + "(" + newID + ", " + source_id + ", " + target_id + ", TO_Date('" + date + "', 'YYYY-MM-DD'), " + amount +")";
-        System.out.println(insertQuery);
+        //System.out.println(insertQuery);
         Statement st3 = conn.createStatement();
         int cnt3 = st3.executeUpdate(insertQuery);
 
-        //System.out.println("Amount transfer completed successfully");
-        System.out.println("Source Acc.: " + source_id + " | Target Acc.: " + target_id + " | Old Source Acc. Balance: " + oldSourceBalance +
-                " | Old Target Acc. Balance:" + oldTargetBalance + " | New Source Acc. Balance: " + newSourceBalance + " | New Target Acc. Balance: " + newTargetBalance);
+        System.out.println("");
+        System.out.println("| Source Acc.: " + source_id + " | Target Acc.: " + target_id + " | \n| Old Source Acc. Balance: " + oldSourceBalance +
+                " | Old Target Acc. Balance:" + oldTargetBalance + " | \n| New Source Acc. Balance: " + newSourceBalance + " | New Target Acc. Balance: " + newTargetBalance + " |");
 
         return true;
     }
@@ -628,6 +651,12 @@ public class Main {
         String query = "select * from transactions where rownum <= " + num + " and (account_to=" + id + " or account_from=" + id + ") order by transaction_day desc";
         PreparedStatement pst = conn.prepareStatement(query);
         ResultSet rs = pst.executeQuery();
+
+
+        String header = "|  Date  | Messgae | Type | Amount |";
+        System.out.println("-------------------------------------------------");
+        System.out.println(header);
+        System.out.println("-------------------------------------------------");
 
         while (rs.next()) {
             int from = rs.getInt("account_from");
@@ -652,8 +681,10 @@ public class Main {
                     type = "Debit";
                 }
             }
-            System.out.println(transaction_date + " | " + message + " | " + type + " | $" + amount);
+            System.out.println(" | " + transaction_date + " | " + message + " | " + type + " | $" + amount + " | ");
         }
+
+        System.out.println("");
         return;
     }
 

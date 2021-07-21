@@ -34,7 +34,7 @@ public class Account {
 
     protected boolean validate(){
         //validate account type
-        if(accountType != "saving"  && accountType !="cheque"){
+        if(accountType != "savings"  && accountType !="cheque"){
             System.out.println("Error: Account type is neither saving nor cheque");
             return false;
         }

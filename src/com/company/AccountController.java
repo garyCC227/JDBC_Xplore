@@ -21,14 +21,14 @@ public class AccountController {
 
 //step3 create the statement object
             Statement stmt=con.createStatement();
-            Account ac = new Account(1,"saving", null, null, 0);
+            Account ac = new Account(10,"saving", null, null, 0);
             AccountController acc = new AccountController();
-//            acc.createAccount(stmt, ac);
+            acc.createAccount(stmt, ac);
 //            acc.getAccountByCustomerId(stmt, 1);
 //            acc.deleteAccount(stmt, 6);
 //            acc.getAccountByCustomerId(stmt, 1);
 //
-            acc.getAccountStatus(stmt);
+//            acc.getAccountStatus(stmt);
 
 //step5 close the connection object
             con.close();
@@ -37,7 +37,7 @@ public class AccountController {
 
     }
 
-    public void getAccountStatus(Statement stmt) throws Exception{
+    public static void getAccountStatus(Statement stmt) throws Exception{
         String query=   "select fullname, accountid, accounttype, accountstatus.status, accountstatus.lastupdated " +
                 "from accountstatus " +
                 "join customerstatus on accountstatus.customerid = customerstatus.customerid " +
@@ -59,8 +59,20 @@ public class AccountController {
         }
     }
 
+    public boolean checkCustomerID(Statement stmt, int id) throws Exception{
+        //check customerId
+        ResultSet check = stmt.executeQuery("select * from customerstatus where customerid = " + id);
+        if(!check.next()){
+            System.out.println("Error: CustomerId not existed");
+            return false;
+        }
+
+        return true;
+    }
+
     //Account creation initiated successfully” Or Relevant error message to be displayed
     public void createAccount(Statement stmt, Account account) throws Exception{
+
         //set status == active, as we just created the account
         account.status = "active";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
@@ -80,7 +92,7 @@ public class AccountController {
         stmt.execute(query);
 
         //show success message
-        System.out.println("Account creation initiated successfully");
+        System.out.println("Account creation initiated successfully for Customer " + account.customerId);
     }
 
     public ArrayList<Account> getAccountByCustomerId(Statement stmt, int id) throws Exception{
@@ -100,12 +112,12 @@ public class AccountController {
             result.add(acc);
         }
 
-        String header = "|  Customer ID  | Account ID | Account Type | Status |  Last Updated  |  Balance  |";
+        String header = "|  Account ID  | Customer ID | Account Type | Status |  Last Updated  |  Balance  |";
         System.out.println("------------------------------------------------------------------------------------");
         System.out.println(header);
         System.out.println("------------------------------------------------------------------------------------");
         for(Account acc: result){
-            System.out.println("|  " + acc.customerId + "  |  " +  acc.accountId + "  |  " +  acc.accountType + "  |  "+ acc.status+"  |  " + acc.lastUpdated + "  | " + acc.balance + " |");
+            System.out.println("|  " + acc.accountId + "  |  " +  acc.customerId + "  |  " +  acc.accountType + "  |  "+ acc.status+"  |  " + acc.lastUpdated + "  | " + acc.balance + " |");
         }
 
         return result;
