@@ -435,6 +435,8 @@ public class Main {
                     continue;
 
                 }
+
+
                 if (AccType == "Cashier" && STATUS == "GetAccountTran") {
                     String accountID = digitInput(input, "Enter Account ID:", 3, 3);
                     boolean found = searchAccount(conn, accountID, "account");//PUT SEARCH FUNCTION HERE RETURN TRUE IF ACCOUNT EXISTS OR FALSE
