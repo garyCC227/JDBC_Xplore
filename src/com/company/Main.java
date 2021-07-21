@@ -337,19 +337,38 @@ public class Main {
                 }
             }
             if(AccType == "Cashier" && STATUS =="GetAccountInfo") {
-                String accountID = digitInput(input,"Enter Account ID:",3,3);
-                boolean found = true; //PUT YOUR SEARCH FUNCTION HERE RETURN FALSE IF NOT FOUND
-                //ALSO PRINT OUT VALUES
-                if(!found) {
-                    print("Account not found");
-                }
                 print("");
-                STATUS = "OptionPanel1";
+                print("1. Search for Accounts by Cutomer ID");
+                print("2. Search for Account by AccountID");
+                print("3. Go Back");
+                int cusOption = inputOption(input,"Please enter the number of one of the above options",1,3);
+                if(cusOption == 1) {
+                    String customerID = digitInput(input,"Enter Customer ID:",3,3);
+                    boolean found = searchAccount(conn, customerID, "customer");
+                    if(!found) {
+                        print("Customer not found");
+                    }
+                }
+                if(cusOption == 2) {
+                    String accountID = digitInput(input,"Enter Account ID:",3,3);
+                    boolean found = searchAccount(conn, accountID, "account");
+                    if(!found) {
+                        print("Account not found!");
+                    }
+                }
+
+                if(cusOption == 3){
+                    STATUS = "OptionPanel1";
+                }else{
+                    STATUS = "GetAccountInfo";
+                }
+
+                print("");
             }
             //DEPOSIT WITHDRAW TRANSFER
             if(AccType == "Cashier" && STATUS == "depWitTra") {
                 String accountID = digitInput(input,"Enter Account ID:",3,3);
-                boolean found = true; //PUT YOUR SEARCH FUNCTION HERE RETURN FALSE IF NOT FOUND
+                boolean found = searchAccount(conn, accountID, "account"); //PUT YOUR SEARCH FUNCTION HERE RETURN FALSE IF NOT FOUND
                 //Put basic customer info balance, type, id e.t.c
                 if(found) {
                     print("1. Deposit");
@@ -364,7 +383,7 @@ public class Main {
                     }
                     if(cusOption == 2) { //withdraw
                         String withAmount = inputNumber(input,"Enter the amount you wish to withdraw",1,10000);
-                        boolean canWithdraw = true; //PUT FUNCTION TO TAKE WITH AMOUNT AND DETERMINE IF TRANSACTION
+                        boolean canWithdraw = true; //PUT FUNCTION TO TAKE WITH AMOUNT AND DETERMINE IF TRANSACTION TODO:
                         //CAN BE MADE, IF NOT RETURN FALSE;
                         if(canWithdraw) {
                             print("$"+withAmount+" successful withdrawn from account "+accountID );
@@ -375,7 +394,7 @@ public class Main {
                     }
                     if(cusOption == 3) { //transfer
                         String TargetAccountID = digitInput(input,"Enter Target Account ID:",3,3);
-                        boolean foundTarget = true; //PUT SEARCH FUNCTION RETURN FALSE IF NOT FOUND
+                        boolean foundTarget = searchAccount(conn, TargetAccountID , "account");;
                         if(foundTarget) {
                             String transAmount = inputNumber(input,"Enter the amount you wish to transfer",1,10000);
                             boolean canTransfer = makeTransfer(conn,transAmount,accountID,TargetAccountID);
@@ -402,7 +421,7 @@ public class Main {
             }
             if(AccType == "Cashier" && STATUS == "GetAccountTran") {
                 String accountID = digitInput(input,"Enter Account ID:",3,3);
-                boolean found = true;//PUT SEARCH FUNCTION HERE RETURN TRUE IF ACCOUNT EXISTS OR FALSE
+                boolean found = searchAccount(conn, accountID, "account");//PUT SEARCH FUNCTION HERE RETURN TRUE IF ACCOUNT EXISTS OR FALSE
                 if(found) {
                     String nTrans = inputNumber(input,"Enter number of previous transactions to show:",1,10);
                     returnTransactions(conn,accountID,nTrans);
@@ -717,6 +736,41 @@ public class Main {
             System.out.print(" | " + rs.getString("address"));
             System.out.print(" | " + rs.getString("age"));
             System.out.println(" | ");
+            System.out.println();
+        }
+
+        return found;
+    }
+
+    public static boolean searchAccount(Connection conn, String inputID, String type) throws SQLException {
+        boolean found = false;
+
+        String query = "";
+        int id = Integer.parseInt(inputID);
+        if (type.equals("account")) {
+            query = "select customerid, accountid, accounttype, balance " +
+                    "from accountstatus " +
+                    "where accountid = " + id;
+//            System.out.println(query);
+        } else if (type.equals("customer")) {
+            query = "select customerid, accountid, accounttype, balance " +
+                    "from accountstatus " +
+                    "where customerid = " + id;
+//            System.out.println(query);
+        }
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        String header = " | Customer ID | Account ID | Account Type | Balance |";
+        System.out.println("------------------------------------------------------------------------------------");
+        System.out.println(header);
+        System.out.println("------------------------------------------------------------------------------------");
+        while (rs.next()) {
+            found = true;
+            System.out.print(" | " + rs.getInt("customerid"));
+            System.out.print(" | " + rs.getInt("accountid"));
+            System.out.print(" | " + rs.getString("accounttype"));
+            System.out.print(" | " + rs.getString("balance"));
             System.out.println();
         }
 
